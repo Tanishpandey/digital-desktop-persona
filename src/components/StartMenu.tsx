@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useWindows } from './WindowContext';
-import { folder, terminal, fileText, list, navigation } from 'lucide-react';
+import { Folder, Terminal, FileText, List, Navigation } from 'lucide-react';
 
 interface StartMenuProps {
   onClose: () => void;
@@ -11,11 +11,11 @@ const StartMenu: React.FC<StartMenuProps> = ({ onClose }) => {
   const { openWindow } = useWindows();
 
   const menuItems = [
-    { name: 'Projects', icon: folder, type: 'projects', description: 'View my work and projects' },
-    { name: 'Terminal', icon: terminal, type: 'terminal', description: 'Skills and Easter eggs' },
-    { name: 'Resume', icon: fileText, type: 'resume', description: 'Professional experience' },
-    { name: 'Experiences', icon: list, type: 'experiences', description: 'Career journey' },
-    { name: 'About', icon: navigation, type: 'about', description: 'Learn more about me' }
+    { name: 'Projects', icon: Folder, type: 'projects', description: 'View my work and projects' },
+    { name: 'Terminal', icon: Terminal, type: 'terminal', description: 'Skills and Easter eggs' },
+    { name: 'Resume', icon: FileText, type: 'resume', description: 'Professional experience' },
+    { name: 'Experiences', icon: List, type: 'experiences', description: 'Career journey' },
+    { name: 'About', icon: Navigation, type: 'about', description: 'Learn more about me' }
   ];
 
   const handleItemClick = (type: string, name: string) => {

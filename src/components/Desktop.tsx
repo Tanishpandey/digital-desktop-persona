@@ -2,35 +2,35 @@
 import React from 'react';
 import DesktopIcon from './DesktopIcon';
 import WindowManager from './WindowManager';
-import { folder, terminal, fileText, list } from 'lucide-react';
+import { Folder, Terminal, FileText, List } from 'lucide-react';
 
 const Desktop = () => {
   const desktopIcons = [
     { 
       id: 'projects',
       name: 'Projects',
-      icon: folder,
+      icon: Folder,
       type: 'projects',
       position: { x: 50, y: 50 }
     },
     { 
       id: 'terminal',
       name: 'Terminal',
-      icon: terminal,
+      icon: Terminal,
       type: 'terminal',
       position: { x: 50, y: 150 }
     },
     { 
       id: 'resume',
       name: 'Resume',
-      icon: fileText,
+      icon: FileText,
       type: 'resume',
       position: { x: 50, y: 250 }
     },
     { 
       id: 'experiences',
       name: 'Experiences',
-      icon: list,
+      icon: List,
       type: 'experiences',
       position: { x: 50, y: 350 }
     }
