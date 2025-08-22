@@ -152,7 +152,7 @@ const SpotifyPortfolio = () => {
             <button
               key={item.name}
               onClick={() => setCurrentView(item.view)}
-              className="spotify-card p-4 rounded-lg text-left"
+              className="spotify-card group p-4 rounded-lg text-left"
             >
               <div className="w-12 h-12 bg-primary/20 rounded-lg mb-3 flex items-center justify-center">
                 <div className="w-6 h-6 bg-primary rounded"></div>
@@ -212,7 +212,7 @@ const SpotifyPortfolio = () => {
         {experienceTracks.map((track, index) => (
           <div
             key={track.id}
-            className="spotify-card grid grid-cols-[2fr_1fr_1fr_60px] gap-4 p-4 rounded-lg group"
+            className="spotify-card group grid grid-cols-[2fr_1fr_1fr_60px] gap-4 p-4 rounded-lg"
           >
             <div className="flex items-center gap-3">
               <Button
@@ -298,7 +298,7 @@ const SpotifyPortfolio = () => {
             <h2 className="text-xl font-semibold mb-4">{category}</h2>
             <div className="space-y-4">
               {skills.filter(skill => skill.category === category).map((skill) => (
-                <div key={skill.name} className="spotify-card p-4 rounded-lg">
+                <div key={skill.name} className="spotify-card group p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium">{skill.name}</span>
                     <span className="text-sm text-muted-foreground">{skill.proficiency}%</span>
@@ -327,7 +327,7 @@ const SpotifyPortfolio = () => {
 
       <div className="grid md:grid-cols-2 gap-8">
         <div className="space-y-6">
-          <div className="spotify-card p-6 rounded-lg">
+          <div className="spotify-card group p-6 rounded-lg">
             <h3 className="text-lg font-semibold mb-4">Get in Touch</h3>
             <div className="space-y-4">
               <div className="flex items-center gap-3">
@@ -341,7 +341,7 @@ const SpotifyPortfolio = () => {
             </div>
           </div>
 
-          <div className="spotify-card p-6 rounded-lg">
+          <div className="spotify-card group p-6 rounded-lg">
             <h3 className="text-lg font-semibold mb-4">Social Links</h3>
             <div className="space-y-3">
               {[
@@ -360,7 +360,7 @@ const SpotifyPortfolio = () => {
           </div>
         </div>
 
-        <div className="spotify-card p-6 rounded-lg">
+        <div className="spotify-card group p-6 rounded-lg">
           <h3 className="text-lg font-semibold mb-4">About Me</h3>
           <p className="text-muted-foreground leading-relaxed mb-6">
             Passionate full-stack developer with 3+ years of experience creating innovative web applications. 

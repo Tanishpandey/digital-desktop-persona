@@ -95,7 +95,7 @@ All colors MUST be HSL.
 
   /* Spotify Card Hover Effects */
   .spotify-card {
-    @apply bg-card hover:bg-card/80 transition-all duration-300 group cursor-pointer;
+    @apply bg-card hover:bg-card/80 transition-all duration-300 cursor-pointer;
   }
   
   .spotify-card:hover .play-overlay {
