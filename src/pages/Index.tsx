@@ -1,11 +1,11 @@
 
 import React from "react";
-import TerminalPortfolio from "@/components/TerminalPortfolio";
+import SpotifyPortfolio from "@/components/SpotifyPortfolio";
 
 const Index = () => {
   return (
-    <div className="h-screen w-full overflow-hidden bg-black">
-      <TerminalPortfolio />
+    <div className="h-screen w-full overflow-hidden">
+      <SpotifyPortfolio />
     </div>
   );
 };
