@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Play, Pause, Heart, MoreHorizontal, Clock, Calendar, MapPin, Mail, ExternalLink } from 'lucide-react';
+import { Play, Pause, Heart, MoreHorizontal, Clock, Calendar, MapPin, Mail, ExternalLink, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import SpotifySidebar from './spotify/SpotifySidebar';
@@ -13,12 +13,23 @@ interface Track {
   image: string;
   description?: string;
   isLiked?: boolean;
+  bullets?: string[];
+}
+
+interface Project {
+  id: string;
+  name: string;
+  description: string;
+  image: string;
+  tech: string;
+  bullets?: string[];
 }
 
 const SpotifyPortfolio = () => {
   const [currentView, setCurrentView] = useState('home');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
+  const [overlayData, setOverlayData] = useState<{ track: Track | Project; type: 'experience' | 'project' } | null>(null);
 
   // Experience as tracks
   const experienceTracks: Track[] = [
@@ -30,7 +41,14 @@ const SpotifyPortfolio = () => {
       duration: '8m+',
       image: '/placeholder.svg',
       description: 'Architected high-scale serverless data platform processing 10M+ daily call records, cutting latency by 93% (30s to 2s) using AWS Lambda, DynamoDB and S3.',
-      isLiked: true
+      isLiked: true,
+      bullets: [
+        'Architected a high-scale serverless data platform processing 10M+ daily call records using multithreaded query chunking',
+        'Cut latency by 93% (30s to 2s) and enabled real-time analytics with AWS Lambda, DynamoDB and S3',
+        'Implemented production-grade React + TypeScript dashboard to visualize real-time product usage across regions',
+        'Optimized distributed system efficiency through advanced parallel processing and DynamoDB pagination',
+        'Delivered sub-second analytics on millions of telecom events with region-aware query optimization'
+      ]
     },
     {
       id: '2', 
@@ -40,7 +58,14 @@ const SpotifyPortfolio = () => {
       duration: '6m+',
       image: '/placeholder.svg',
       description: 'Collaborated with Bloomberg engineers to tackle complex algorithmic problems, improving code efficiency and readability through iterative feedback.',
-      isLiked: true
+      isLiked: true,
+      bullets: [
+        'Collaborated closely with Bloomberg engineers and mentors to tackle complex algorithmic problems',
+        'Improved both efficiency and readability of code through iterative feedback',
+        'Incorporated expert feedback to architect clean, scalable solutions',
+        'Worked within a fast-paced, mentorship-driven environment',
+        'Developed advanced problem-solving skills with industry professionals'
+      ]
     },
     {
       id: '3',
@@ -50,7 +75,15 @@ const SpotifyPortfolio = () => {
       duration: '4m',
       image: '/placeholder.svg',
       description: 'Automated end-to-end CI/CD testing pipeline for satellite messaging systems, reducing manual QA by 90% (400+ hours/year).',
-      isLiked: true
+      isLiked: true,
+      bullets: [
+        'Automated end-to-end CI/CD testing pipeline for satellite messaging systems',
+        'Reduced manual QA by 90% (400+ hours/year) and improved testing efficiency',
+        'Simulated message sending on 50+ devices using Python threading',
+        'Implemented 200+ test cases, boosting coverage and database reliability',
+        'Engineered unit tests for MongoDB, PostgreSQL, MySQL, and C++ ground station databases',
+        'Cut data retrieval errors by 45% using Google Test Suite'
+      ]
     },
     {
       id: '4',
@@ -60,32 +93,57 @@ const SpotifyPortfolio = () => {
       duration: '11m',
       image: '/placeholder.svg',
       description: 'Developed Python-based Glassdoor web scraper extracting 5,000+ company reviews, contributing to 80% improvement in predictive model accuracy.',
-      isLiked: false
+      isLiked: false,
+      bullets: [
+        'Extracted over 5,000 company reviews by developing a Python-based Glassdoor web scraper',
+        'Enhanced data availability for analysis in collaboration with professor',
+        'Contributed to an 80% improvement in accuracy of predictive models',
+        'Developed web scraper that gathered weather data from 100+ locations',
+        'Used Selenium and Beautiful Soup for efficient data extraction'
+      ]
     }
   ];
 
   // Projects as albums
-  const projects = [
+  const projects: Project[] = [
     {
       id: '1',
       name: 'DisasterAlert',
       description: 'Tailored AI Alerts',
       image: '/placeholder.svg',
-      tech: 'TypeScript • Node.js • MongoDB • AI'
+      tech: 'TypeScript • Node.js • MongoDB • AI',
+      bullets: [
+        'Built scalable REST APIs to integrate generative AI algorithms for real-time disaster alert classification',
+        'Enhanced MongoDB queries to handle large datasets with system reliability under high traffic',
+        'Integrated real-time updates to improve system efficiency and user interaction',
+        'Focused on cloud-native technologies aligning with modern deployment practices'
+      ]
     },
     {
       id: '2',
       name: 'ReservePlate',
       description: 'Food Redistribution Platform',
       image: '/placeholder.svg', 
-      tech: 'React • Node.js • MongoDB • JavaScript'
+      tech: 'React • Node.js • MongoDB • JavaScript',
+      bullets: [
+        'Built user-friendly platform for food redistribution with React-based front-end interfaces',
+        'Developed robust backend APIs using Node.js for seamless data management',
+        'Designed geolocation-based filtering for users to discover nearby food offers in real time',
+        'Improved scalability and reliability through modern React workflows and MongoDB optimizations'
+      ]
     },
     {
       id: '3',
       name: 'Spotify Portfolio',
       description: 'Interactive resume website',
       image: '/placeholder.svg',
-      tech: 'React • TypeScript • Tailwind CSS'
+      tech: 'React • TypeScript • Tailwind CSS',
+      bullets: [
+        'Created modern, interactive resume website mimicking Spotify\'s design and UX',
+        'Implemented dark theme with responsive design and smooth animations',
+        'Built reusable components with TypeScript for type safety and maintainability',
+        'Used Tailwind CSS for consistent design system and beautiful styling'
+      ]
     }
   ];
 
@@ -109,13 +167,20 @@ const SpotifyPortfolio = () => {
     { name: 'CI/CD', proficiency: 78, category: 'DevOps' }
   ];
 
-  const handlePlay = (track?: Track) => {
+  const handlePlay = (track?: Track, item?: Project) => {
     if (track) {
       setCurrentTrack(track);
       setIsPlaying(true);
+      setOverlayData({ track, type: 'experience' });
+    } else if (item) {
+      setOverlayData({ track: item, type: 'project' });
     } else {
       setIsPlaying(!isPlaying);
     }
+  };
+
+  const closeOverlay = () => {
+    setOverlayData(null);
   };
 
   const renderHome = () => (
@@ -142,8 +207,8 @@ const SpotifyPortfolio = () => {
             </div>
           </div>
           <Button
-            onClick={() => handlePlay()}
-            className="play-button bg-white/20 hover:bg-white/30 text-white border-0 w-12 h-12 rounded-full p-0"
+            onClick={() => handlePlay(experienceTracks[0])}
+            className="play-button bg-white/20 hover:bg-white/30 text-white border-0 w-12 h-12 rounded-full p-0 transition-all duration-200 hover:scale-110"
           >
             {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
           </Button>
@@ -186,7 +251,10 @@ const SpotifyPortfolio = () => {
                   <div className="w-12 h-12 bg-primary/30 rounded"></div>
                 </div>
                 <div className="play-overlay absolute bottom-2 right-2">
-                  <Button className="play-button w-12 h-12 rounded-full p-0">
+                  <Button 
+                    onClick={() => handlePlay(undefined, project)}
+                    className="play-button w-12 h-12 rounded-full p-0 transition-all duration-200 hover:scale-110"
+                  >
                     <Play className="w-5 h-5 ml-0.5" />
                   </Button>
                 </div>
@@ -229,7 +297,7 @@ const SpotifyPortfolio = () => {
             <div className="flex items-center gap-3">
               <Button
                 onClick={() => handlePlay(track)}
-                className="play-button opacity-0 group-hover:opacity-100 w-10 h-10 rounded-full p-0"
+                className="play-button opacity-0 group-hover:opacity-100 w-10 h-10 rounded-full p-0 transition-all duration-200 hover:scale-110"
               >
                 {currentTrack?.id === track.id && isPlaying ? 
                   <Pause className="w-4 h-4" /> : 
@@ -278,7 +346,10 @@ const SpotifyPortfolio = () => {
                 <div className="w-16 h-16 bg-primary/30 rounded"></div>
               </div>
               <div className="play-overlay absolute bottom-4 right-4">
-                <Button className="play-button w-12 h-12 rounded-full p-0 shadow-lg">
+                <Button 
+                  onClick={() => handlePlay(undefined, project)}
+                  className="play-button w-12 h-12 rounded-full p-0 shadow-lg transition-all duration-200 hover:scale-110"
+                >
                   <Play className="w-5 h-5 ml-0.5" />
                 </Button>
               </div>
@@ -557,6 +628,81 @@ const SpotifyPortfolio = () => {
             <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
               <MoreHorizontal className="w-4 h-4" />
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Details Overlay */}
+      {overlayData && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-card border rounded-lg max-w-2xl w-full max-h-[80vh] overflow-auto animate-scale-in">
+            <div className="sticky top-0 bg-card border-b p-4 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/5 rounded-lg flex items-center justify-center">
+                  <div className="w-6 h-6 bg-primary/30 rounded"></div>
+                </div>
+                <div>
+                  <h3 className="font-semibold">
+                    {overlayData.type === 'experience' ? 
+                      (overlayData.track as Track).title : 
+                      (overlayData.track as Project).name
+                    }
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    {overlayData.type === 'experience' ? 
+                      (overlayData.track as Track).artist : 
+                      (overlayData.track as Project).description
+                    }
+                  </p>
+                </div>
+              </div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={closeOverlay}
+                className="w-8 h-8 p-0 hover:bg-destructive/10"
+              >
+                <X className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <div className="p-6">
+              <h4 className="font-semibold mb-4 flex items-center gap-2">
+                <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                Key Achievements & Responsibilities
+              </h4>
+              
+              <div className="space-y-3">
+                {overlayData.track.bullets?.map((bullet, index) => (
+                  <div 
+                    key={index} 
+                    className="flex items-start gap-3 p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors duration-200"
+                    style={{ animationDelay: `${index * 100}ms` }}
+                  >
+                    <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">{bullet}</span>
+                  </div>
+                ))}
+              </div>
+              
+              {overlayData.type === 'experience' && (
+                <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Duration:</span>
+                    <span className="font-medium">{(overlayData.track as Track).album}</span>
+                  </div>
+                </div>
+              )}
+              
+              {overlayData.type === 'project' && (
+                <div className="mt-6 p-4 bg-primary/5 rounded-lg border border-primary/20">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Tech Stack:</span>
+                    <span className="font-medium">{(overlayData.track as Project).tech}</span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
