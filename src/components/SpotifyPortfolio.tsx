@@ -24,32 +24,42 @@ const SpotifyPortfolio = () => {
   const experienceTracks: Track[] = [
     {
       id: '1',
-      title: 'Senior Frontend Developer',
-      artist: 'Tech Solutions Inc.',
-      album: '2023 - Present',
-      duration: '1y 2m',
+      title: 'Software Engineer Intern',
+      artist: 'Genesys',
+      album: 'May 2025 - Present',
+      duration: '8m+',
       image: '/placeholder.svg',
-      description: 'Led development of customer-facing applications using React/TypeScript. Improved app performance by 40% through optimization.',
+      description: 'Architected high-scale serverless data platform processing 10M+ daily call records, cutting latency by 93% (30s to 2s) using AWS Lambda, DynamoDB and S3.',
       isLiked: true
     },
     {
       id: '2', 
-      title: 'Full Stack Developer',
-      artist: 'StartupXYZ',
-      album: '2022 - 2023',
-      duration: '1y 0m',
+      title: 'Tech Insights Summer School',
+      artist: 'Bloomberg',
+      album: 'June 2025 - Present',
+      duration: '6m+',
       image: '/placeholder.svg',
-      description: 'Built real-time chat system handling 1000+ concurrent users. Integrated payment processing with Stripe API.',
+      description: 'Collaborated with Bloomberg engineers to tackle complex algorithmic problems, improving code efficiency and readability through iterative feedback.',
       isLiked: true
     },
     {
       id: '3',
-      title: 'Junior Web Developer', 
-      artist: 'Digital Agency Co.',
-      album: '2021 - 2022',
-      duration: '1y 0m',
+      title: 'Software Engineer Intern', 
+      artist: 'Lynk Global',
+      album: 'May 2024 - August 2024',
+      duration: '4m',
       image: '/placeholder.svg',
-      description: 'Delivered 15+ client projects on time and within budget. Improved site loading speeds by average of 50%.',
+      description: 'Automated end-to-end CI/CD testing pipeline for satellite messaging systems, reducing manual QA by 90% (400+ hours/year).',
+      isLiked: true
+    },
+    {
+      id: '4',
+      title: 'Research Assistant', 
+      artist: 'Penn State University',
+      album: 'December 2023 - October 2024',
+      duration: '11m',
+      image: '/placeholder.svg',
+      description: 'Developed Python-based Glassdoor web scraper extracting 5,000+ company reviews, contributing to 80% improvement in predictive model accuracy.',
       isLiked: false
     }
   ];
@@ -58,44 +68,45 @@ const SpotifyPortfolio = () => {
   const projects = [
     {
       id: '1',
-      name: 'E-Commerce Platform',
-      description: 'Full-stack web application',
+      name: 'DisasterAlert',
+      description: 'Tailored AI Alerts',
       image: '/placeholder.svg',
-      tech: 'React • Node.js • PostgreSQL'
+      tech: 'TypeScript • Node.js • MongoDB • AI'
     },
     {
       id: '2',
-      name: 'Task Management App',
-      description: 'Collaborative project management',
+      name: 'ReservePlate',
+      description: 'Food Redistribution Platform',
       image: '/placeholder.svg', 
-      tech: 'Vue.js • Socket.io • MongoDB'
+      tech: 'React • Node.js • MongoDB • JavaScript'
     },
     {
       id: '3',
-      name: 'Data Visualization Dashboard',
-      description: 'Interactive business analytics',
+      name: 'Spotify Portfolio',
+      description: 'Interactive resume website',
       image: '/placeholder.svg',
-      tech: 'D3.js • React • Python'
-    },
-    {
-      id: '4',
-      name: 'Personal OS Portfolio',
-      description: 'Interactive operating system themed',
-      image: '/placeholder.svg',
-      tech: 'React • TypeScript • Tailwind'
+      tech: 'React • TypeScript • Tailwind CSS'
     }
   ];
 
   // Skills with proficiency levels
   const skills = [
-    { name: 'React.js', proficiency: 95, category: 'Frontend' },
-    { name: 'TypeScript', proficiency: 90, category: 'Frontend' },
+    { name: 'React', proficiency: 90, category: 'Frontend' },
+    { name: 'TypeScript', proficiency: 88, category: 'Frontend' },
+    { name: 'JavaScript', proficiency: 92, category: 'Frontend' },
+    { name: 'HTML/CSS', proficiency: 85, category: 'Frontend' },
+    { name: 'Python', proficiency: 95, category: 'Backend' },
     { name: 'Node.js', proficiency: 88, category: 'Backend' },
-    { name: 'Python', proficiency: 85, category: 'Backend' },
-    { name: 'PostgreSQL', proficiency: 82, category: 'Database' },
-    { name: 'MongoDB', proficiency: 80, category: 'Database' },
-    { name: 'AWS', proficiency: 78, category: 'DevOps' },
-    { name: 'Docker', proficiency: 75, category: 'DevOps' }
+    { name: 'C/C++', proficiency: 85, category: 'Backend' },
+    { name: 'Java', proficiency: 82, category: 'Backend' },
+    { name: 'MongoDB', proficiency: 85, category: 'Database' },
+    { name: 'PostgreSQL', proficiency: 88, category: 'Database' },
+    { name: 'MySQL', proficiency: 82, category: 'Database' },
+    { name: 'DynamoDB', proficiency: 80, category: 'Database' },
+    { name: 'AWS Lambda', proficiency: 85, category: 'DevOps' },
+    { name: 'Docker', proficiency: 80, category: 'DevOps' },
+    { name: 'Git', proficiency: 90, category: 'DevOps' },
+    { name: 'CI/CD', proficiency: 78, category: 'DevOps' }
   ];
 
   const handlePlay = (track?: Track) => {
@@ -126,8 +137,8 @@ const SpotifyPortfolio = () => {
             </div>
             <div>
               <p className="text-sm opacity-90">Currently Playing</p>
-              <h3 className="text-xl font-semibold">Senior Frontend Developer</h3>
-              <p className="opacity-90">at Tech Solutions Inc.</p>
+              <h3 className="text-xl font-semibold">Software Engineer Intern</h3>
+              <p className="opacity-90">at Genesys</p>
             </div>
           </div>
           <Button
@@ -147,6 +158,7 @@ const SpotifyPortfolio = () => {
             { name: 'Experience', view: 'experience' },
             { name: 'Projects', view: 'projects' },
             { name: 'Skills', view: 'skills' },
+            { name: 'Education', view: 'education' },
             { name: 'Contact', view: 'contact' }
           ].map((item) => (
             <button
@@ -254,7 +266,7 @@ const SpotifyPortfolio = () => {
         </div>
         <div>
           <h1 className="text-3xl font-bold">Projects</h1>
-          <p className="text-muted-foreground">Made by John Developer • {projects.length} projects</p>
+          <p className="text-muted-foreground">Made by Tanish Pandey • {projects.length} projects</p>
         </div>
       </div>
 
@@ -313,6 +325,83 @@ const SpotifyPortfolio = () => {
     </div>
   );
 
+  const renderEducation = () => (
+    <div className="p-6">
+      <div className="flex items-center gap-4 mb-8">
+        <div className="w-16 h-16 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center">
+          <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l9-5-9-5-9 5 9 5z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" />
+          </svg>
+        </div>
+        <div>
+          <h1 className="text-3xl font-bold">Education</h1>
+          <p className="text-muted-foreground">Academic background and achievements</p>
+        </div>
+      </div>
+
+      <div className="space-y-6">
+        {/* Main Education */}
+        <div className="spotify-card group p-6 rounded-lg">
+          <div className="flex items-start gap-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-lg">PSU</span>
+            </div>
+            <div className="flex-1">
+              <h3 className="text-xl font-semibold mb-2">Bachelor of Science in Computer Science, Mathematics</h3>
+              <p className="text-lg text-muted-foreground mb-2">Penn State University</p>
+              <div className="grid md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p className="text-sm text-muted-foreground">Expected Graduation</p>
+                  <p className="font-medium">December 2026</p>
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">GPA</p>
+                  <p className="font-medium">3.70/4.00</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Coursework */}
+        <div className="spotify-card group p-6 rounded-lg">
+          <h3 className="text-lg font-semibold mb-4">Relevant Coursework</h3>
+          <div className="grid md:grid-cols-2 gap-4">
+            {[
+              'Data Structures and Algorithms',
+              'Object-Oriented Programming', 
+              'Machine Learning',
+              'AWS and Big Data'
+            ].map((course) => (
+              <div key={course} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                <span>{course}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Additional Info */}
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="spotify-card group p-6 rounded-lg">
+            <h3 className="text-lg font-semibold mb-4">Academic Focus</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              Dual major in Computer Science and Mathematics, with emphasis on software engineering, 
+              data structures, and machine learning applications.
+            </p>
+          </div>
+          <div className="spotify-card group p-6 rounded-lg">
+            <h3 className="text-lg font-semibold mb-4">Research Interests</h3>
+            <p className="text-muted-foreground leading-relaxed">
+              Big data analytics, AI/ML applications, cloud computing, and scalable system architecture.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   const renderContact = () => (
     <div className="p-6">
       <div className="flex items-center gap-4 mb-8">
@@ -332,11 +421,17 @@ const SpotifyPortfolio = () => {
             <div className="space-y-4">
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary" />
-                <span>john.developer@email.com</span>
+                <span>tanishpandey3@gmail.com</span>
               </div>
               <div className="flex items-center gap-3">
                 <MapPin className="w-5 h-5 text-primary" />
-                <span>San Francisco, CA</span>
+                <span>University Park, PA</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                <span>814-441-1723</span>
               </div>
             </div>
           </div>
@@ -345,9 +440,9 @@ const SpotifyPortfolio = () => {
             <h3 className="text-lg font-semibold mb-4">Social Links</h3>
             <div className="space-y-3">
               {[
-                { name: 'GitHub', url: 'github.com/johndeveloper' },
-                { name: 'LinkedIn', url: 'linkedin.com/in/johndeveloper' },
-                { name: 'Twitter', url: '@johndeveloper' }
+                { name: 'GitHub', url: 'github.com/tanishpandey' },
+                { name: 'LinkedIn', url: 'linkedin.com/in/tanishpandey' },
+                { name: 'Phone', url: '814-441-1723' }
               ].map((link) => (
                 <div key={link.name} className="flex items-center justify-between">
                   <span>{link.name}</span>
@@ -363,9 +458,9 @@ const SpotifyPortfolio = () => {
         <div className="spotify-card group p-6 rounded-lg">
           <h3 className="text-lg font-semibold mb-4">About Me</h3>
           <p className="text-muted-foreground leading-relaxed mb-6">
-            Passionate full-stack developer with 3+ years of experience creating innovative web applications. 
-            I specialize in React, Node.js, and modern JavaScript frameworks. Always eager to take on new 
-            challenges and collaborate on exciting projects.
+            Computer Science student at Penn State University with hands-on experience in software engineering 
+            at top companies like Genesys and Bloomberg. Passionate about building scalable systems, AI applications, 
+            and solving complex problems with modern technologies.
           </p>
           <Button className="w-full">
             Download Resume
@@ -383,6 +478,8 @@ const SpotifyPortfolio = () => {
         return renderProjects();
       case 'skills':
         return renderSkills();
+      case 'education':
+        return renderEducation();
       case 'contact':
         return renderContact();
       default:
@@ -412,7 +509,7 @@ const SpotifyPortfolio = () => {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-              <span className="text-primary-foreground text-sm font-semibold">JD</span>
+              <span className="text-primary-foreground text-sm font-semibold">TP</span>
             </div>
           </div>
         </div>

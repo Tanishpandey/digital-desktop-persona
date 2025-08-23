@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Search, Library, Plus, Heart, User, Briefcase, Code, Mail } from 'lucide-react';
+import { Home, Search, Library, Plus, Heart, User, Briefcase, Code, Mail, GraduationCap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface SpotifySidebarProps {
@@ -18,15 +18,16 @@ const SpotifySidebar: React.FC<SpotifySidebarProps> = ({ currentView, onViewChan
     { id: 'experience', label: 'Experience', icon: Briefcase },
     { id: 'projects', label: 'Projects', icon: Code }, 
     { id: 'skills', label: 'Skills', icon: User },
+    { id: 'education', label: 'Education', icon: GraduationCap },
     { id: 'contact', label: 'Contact', icon: Mail }
   ];
 
   const recentlyPlayed = [
-    'Senior Frontend Developer',
-    'E-Commerce Platform', 
-    'React Component Library',
-    'Task Management App',
-    'Data Visualization Dashboard'
+    'Software Engineer Intern',
+    'DisasterAlert', 
+    'ReservePlate',
+    'AWS Lambda Platform',
+    'CI/CD Pipeline Automation'
   ];
 
   return (
@@ -35,7 +36,7 @@ const SpotifySidebar: React.FC<SpotifySidebarProps> = ({ currentView, onViewChan
       <div className="p-6 border-b">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">JD</span>
+            <span className="text-primary-foreground font-bold text-sm">TP</span>
           </div>
           <span className="font-semibold text-lg">Portfolio</span>
         </div>
@@ -106,7 +107,7 @@ const SpotifySidebar: React.FC<SpotifySidebarProps> = ({ currentView, onViewChan
               </div>
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate">{item}</p>
-                <p className="text-xs text-muted-foreground">John Developer</p>
+                <p className="text-xs text-muted-foreground">Tanish Pandey</p>
               </div>
             </div>
           ))}
