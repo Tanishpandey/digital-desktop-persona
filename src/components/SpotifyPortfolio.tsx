@@ -1,181 +1,203 @@
-import React, { useState } from 'react';
-import { Play, Pause, Heart, MoreHorizontal, Clock, Calendar, MapPin, Mail, ExternalLink, X } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Play, Pause, Heart, MoreHorizontal, Clock, Calendar, MapPin, Mail, ExternalLink, X, Search, Shuffle, SkipForward, SkipBack, Repeat, Volume2, Download, Share, Menu } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/use-toast';
 import SpotifySidebar from './spotify/SpotifySidebar';
+import SearchOverlay from './spotify/SearchOverlay';
+import NowPlayingBar from './spotify/NowPlayingBar';
+import QueueSidebar from './spotify/QueueSidebar';
+import { resumeData } from '@/data/resumeData';
+import type { Track, Project, Skill, QueueItem } from '@/data/resumeData';
 
-interface Track {
-  id: string;
-  title: string;
-  artist: string;
-  album: string;
-  duration: string;
-  image: string;
-  description?: string;
-  isLiked?: boolean;
-  bullets?: string[];
-}
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  image: string;
-  tech: string;
-  bullets?: string[];
-}
+// Interfaces imported from resumeData
 
 const SpotifyPortfolio = () => {
+  const { toast } = useToast();
   const [currentView, setCurrentView] = useState('home');
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const [overlayData, setOverlayData] = useState<{ track: Track | Project; type: 'experience' | 'project' } | null>(null);
+  
+  // Enhanced state management
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [queueOpen, setQueueOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [queue, setQueue] = useState<QueueItem[]>([]);
+  const [volume, setVolume] = useState(75);
+  const [progress, setProgress] = useState(0);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [isShuffled, setIsShuffled] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<'off' | 'all' | 'one'>('off');
+  const [likedTracks, setLikedTracks] = useState<Set<string>>(new Set());
+  const [themeIntensity, setThemeIntensity] = useState(75);
 
-  // Experience as tracks
-  const experienceTracks: Track[] = [
-    {
-      id: '1',
-      title: 'Software Engineer Intern',
-      artist: 'Genesys',
-      album: 'May 2025 - Present',
-      duration: '8m+',
-      image: '/placeholder.svg',
-      description: 'Architected high-scale serverless data platform processing 10M+ daily call records, cutting latency by 93% (30s to 2s) using AWS Lambda, DynamoDB and S3.',
-      isLiked: true,
-      bullets: [
-        'Architected a high-scale serverless data platform processing 10M+ daily call records using multithreaded query chunking',
-        'Cut latency by 93% (30s to 2s) and enabled real-time analytics with AWS Lambda, DynamoDB and S3',
-        'Implemented production-grade React + TypeScript dashboard to visualize real-time product usage across regions',
-        'Optimized distributed system efficiency through advanced parallel processing and DynamoDB pagination',
-        'Delivered sub-second analytics on millions of telecom events with region-aware query optimization'
-      ]
-    },
-    {
-      id: '2', 
-      title: 'Tech Insights Summer School',
-      artist: 'Bloomberg',
-      album: 'June 2025 - Present',
-      duration: '6m+',
-      image: '/placeholder.svg',
-      description: 'Collaborated with Bloomberg engineers to tackle complex algorithmic problems, improving code efficiency and readability through iterative feedback.',
-      isLiked: true,
-      bullets: [
-        'Collaborated closely with Bloomberg engineers and mentors to tackle complex algorithmic problems',
-        'Improved both efficiency and readability of code through iterative feedback',
-        'Incorporated expert feedback to architect clean, scalable solutions',
-        'Worked within a fast-paced, mentorship-driven environment',
-        'Developed advanced problem-solving skills with industry professionals'
-      ]
-    },
-    {
-      id: '3',
-      title: 'Software Engineer Intern', 
-      artist: 'Lynk Global',
-      album: 'May 2024 - August 2024',
-      duration: '4m',
-      image: '/placeholder.svg',
-      description: 'Automated end-to-end CI/CD testing pipeline for satellite messaging systems, reducing manual QA by 90% (400+ hours/year).',
-      isLiked: true,
-      bullets: [
-        'Automated end-to-end CI/CD testing pipeline for satellite messaging systems',
-        'Reduced manual QA by 90% (400+ hours/year) and improved testing efficiency',
-        'Simulated message sending on 50+ devices using Python threading',
-        'Implemented 200+ test cases, boosting coverage and database reliability',
-        'Engineered unit tests for MongoDB, PostgreSQL, MySQL, and C++ ground station databases',
-        'Cut data retrieval errors by 45% using Google Test Suite'
-      ]
-    },
-    {
-      id: '4',
-      title: 'Research Assistant', 
-      artist: 'Penn State University',
-      album: 'December 2023 - October 2024',
-      duration: '11m',
-      image: '/placeholder.svg',
-      description: 'Developed Python-based Glassdoor web scraper extracting 5,000+ company reviews, contributing to 80% improvement in predictive model accuracy.',
-      isLiked: false,
-      bullets: [
-        'Extracted over 5,000 company reviews by developing a Python-based Glassdoor web scraper',
-        'Enhanced data availability for analysis in collaboration with professor',
-        'Contributed to an 80% improvement in accuracy of predictive models',
-        'Developed web scraper that gathered weather data from 100+ locations',
-        'Used Selenium and Beautiful Soup for efficient data extraction'
-      ]
+  // Data from centralized source
+  const experienceTracks = resumeData.experience;
+  const projects = resumeData.projects;
+  const skills = resumeData.skills;
+  const recentlyPlayed = resumeData.recentlyPlayed;
+  const upcomingGoals = resumeData.upcomingGoals;
+
+  // Initialize queue and liked tracks
+  useEffect(() => {
+    setQueue([
+      ...experienceTracks.slice(1).map(exp => ({
+        id: exp.id,
+        type: 'experience' as const,
+        title: exp.title,
+        subtitle: exp.artist,
+        duration: exp.duration,
+        logo: exp.logo,
+        isLiked: exp.isLiked,
+        status: 'completed' as const
+      })),
+      ...projects.map(proj => ({
+        id: proj.id,
+        type: 'project' as const,
+        title: proj.name,
+        subtitle: proj.description,
+        logo: proj.logo,
+        isLiked: proj.isFavorited,
+        status: 'completed' as const
+      }))
+    ]);
+
+    // Initialize liked tracks
+    const initialLiked = new Set<string>();
+    experienceTracks.forEach(track => {
+      if (track.isLiked) initialLiked.add(track.id);
+    });
+    projects.forEach(project => {
+      if (project.isFavorited) initialLiked.add(project.id);
+    });
+    setLikedTracks(initialLiked);
+  }, []);
+
+  // Theme intensity effect
+  useEffect(() => {
+    document.documentElement.style.setProperty('--theme-opacity', (themeIntensity / 100).toString());
+  }, [themeIntensity]);
+
+  // Progress simulation for current track
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isPlaying && currentTrack) {
+      interval = setInterval(() => {
+        setProgress(prev => {
+          const newProgress = prev + 0.5;
+          return newProgress >= 100 ? 0 : newProgress;
+        });
+      }, 1000);
     }
-  ];
+    return () => clearInterval(interval);
+  }, [isPlaying, currentTrack]);
 
-  // Projects as albums
-  const projects: Project[] = [
-    {
-      id: '1',
-      name: 'DisasterAlert',
-      description: 'Tailored AI Alerts',
-      image: '/placeholder.svg',
-      tech: 'TypeScript • Node.js • MongoDB • AI',
-      bullets: [
-        'Built scalable REST APIs to integrate generative AI algorithms for real-time disaster alert classification',
-        'Enhanced MongoDB queries to handle large datasets with system reliability under high traffic',
-        'Integrated real-time updates to improve system efficiency and user interaction',
-        'Focused on cloud-native technologies aligning with modern deployment practices'
-      ]
-    },
-    {
-      id: '2',
-      name: 'ReservePlate',
-      description: 'Food Redistribution Platform',
-      image: '/placeholder.svg', 
-      tech: 'React • Node.js • MongoDB • JavaScript',
-      bullets: [
-        'Built user-friendly platform for food redistribution with React-based front-end interfaces',
-        'Developed robust backend APIs using Node.js for seamless data management',
-        'Designed geolocation-based filtering for users to discover nearby food offers in real time',
-        'Improved scalability and reliability through modern React workflows and MongoDB optimizations'
-      ]
-    },
-    {
-      id: '3',
-      name: 'Spotify Portfolio',
-      description: 'Interactive resume website',
-      image: '/placeholder.svg',
-      tech: 'React • TypeScript • Tailwind CSS',
-      bullets: [
-        'Created modern, interactive resume website mimicking Spotify\'s design and UX',
-        'Implemented dark theme with responsive design and smooth animations',
-        'Built reusable components with TypeScript for type safety and maintainability',
-        'Used Tailwind CSS for consistent design system and beautiful styling'
-      ]
-    }
-  ];
-
-  // Skills with proficiency levels
-  const skills = [
-    { name: 'React', proficiency: 90, category: 'Frontend' },
-    { name: 'TypeScript', proficiency: 88, category: 'Frontend' },
-    { name: 'JavaScript', proficiency: 92, category: 'Frontend' },
-    { name: 'HTML/CSS', proficiency: 85, category: 'Frontend' },
-    { name: 'Python', proficiency: 95, category: 'Backend' },
-    { name: 'Node.js', proficiency: 88, category: 'Backend' },
-    { name: 'C/C++', proficiency: 85, category: 'Backend' },
-    { name: 'Java', proficiency: 82, category: 'Backend' },
-    { name: 'MongoDB', proficiency: 85, category: 'Database' },
-    { name: 'PostgreSQL', proficiency: 88, category: 'Database' },
-    { name: 'MySQL', proficiency: 82, category: 'Database' },
-    { name: 'DynamoDB', proficiency: 80, category: 'Database' },
-    { name: 'AWS Lambda', proficiency: 85, category: 'DevOps' },
-    { name: 'Docker', proficiency: 80, category: 'DevOps' },
-    { name: 'Git', proficiency: 90, category: 'DevOps' },
-    { name: 'CI/CD', proficiency: 78, category: 'DevOps' }
-  ];
-
+  // Enhanced functionality handlers
   const handlePlay = (track?: Track, item?: Project) => {
     if (track) {
       setCurrentTrack(track);
       setIsPlaying(true);
       setOverlayData({ track, type: 'experience' });
+      setCurrentTrackIndex(experienceTracks.findIndex(t => t.id === track.id));
     } else if (item) {
       setOverlayData({ track: item, type: 'project' });
     } else {
       setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleNext = () => {
+    if (experienceTracks.length === 0) return;
+    let nextIndex = currentTrackIndex + 1;
+    if (nextIndex >= experienceTracks.length) {
+      nextIndex = repeatMode === 'all' ? 0 : currentTrackIndex;
+    }
+    if (nextIndex !== currentTrackIndex) {
+      setCurrentTrackIndex(nextIndex);
+      setCurrentTrack(experienceTracks[nextIndex]);
+      setProgress(0);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (experienceTracks.length === 0) return;
+    let prevIndex = currentTrackIndex - 1;
+    if (prevIndex < 0) {
+      prevIndex = repeatMode === 'all' ? experienceTracks.length - 1 : 0;
+    }
+    setCurrentTrackIndex(prevIndex);
+    setCurrentTrack(experienceTracks[prevIndex]);
+    setProgress(0);
+  };
+
+  const handleShuffle = () => {
+    setIsShuffled(!isShuffled);
+    toast({
+      title: isShuffled ? "Shuffle off" : "Shuffle on",
+      description: isShuffled ? "Playing in order" : "Playing randomly"
+    });
+  };
+
+  const handleRepeat = () => {
+    const modes: Array<'off' | 'all' | 'one'> = ['off', 'all', 'one'];
+    const currentIndex = modes.indexOf(repeatMode);
+    const nextMode = modes[(currentIndex + 1) % modes.length];
+    setRepeatMode(nextMode);
+    toast({
+      title: `Repeat ${nextMode}`,
+      description: nextMode === 'off' ? "Not repeating" : nextMode === 'all' ? "Repeating playlist" : "Repeating current track"
+    });
+  };
+
+  const handleLike = (id: string) => {
+    const newLiked = new Set(likedTracks);
+    if (newLiked.has(id)) {
+      newLiked.delete(id);
+      toast({ title: "Removed from liked", description: "Track removed from your favorites" });
+    } else {
+      newLiked.add(id);
+      toast({ title: "Added to liked", description: "Track added to your favorites" });
+    }
+    setLikedTracks(newLiked);
+  };
+
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume);
+    setThemeIntensity(newVolume); // Volume controls theme intensity
+  };
+
+  const handleDownloadResume = () => {
+    toast({
+      title: "Resume Downloaded",
+      description: "Your resume has been downloaded successfully"
+    });
+    // In a real app, this would trigger an actual download
+  };
+
+  const handleShare = () => {
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link copied!",
+      description: "Portfolio link copied to clipboard"
+    });
+  };
+
+  const handleSearchResultClick = (result: any) => {
+    if (result.type === 'experience') {
+      const track = experienceTracks.find(t => t.id === result.id);
+      if (track) handlePlay(track);
+    } else if (result.type === 'project') {
+      const project = projects.find(p => p.id === result.id);
+      if (project) handlePlay(undefined, project);
+    }
+    setCurrentView(result.type === 'skill' ? 'skills' : result.type);
+  };
+
+  const handleQueuePlay = (item: QueueItem) => {
+    if (item.type === 'experience') {
+      const track = experienceTracks.find(t => t.id === item.id);
+      if (track) handlePlay(track);
     }
   };
 
@@ -317,7 +339,17 @@ const SpotifyPortfolio = () => {
             <span className="flex items-center text-muted-foreground">{track.artist}</span>
             <span className="flex items-center text-muted-foreground">{track.album}</span>
             <div className="flex items-center gap-2">
-              {track.isLiked && <Heart className="w-4 h-4 fill-primary text-primary" />}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLike(track.id);
+                }}
+                className="w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Heart className={`w-4 h-4 ${likedTracks.has(track.id) ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
+              </Button>
               <span className="text-muted-foreground text-sm">{track.duration}</span>
             </div>
           </div>
@@ -375,18 +407,54 @@ const SpotifyPortfolio = () => {
         </div>
       </div>
 
+      {/* Skills Controls */}
+      <div className="flex items-center gap-4 mb-6">
+        <Button
+          variant={isShuffled ? "default" : "outline"}
+          onClick={handleShuffle}
+          size="sm"
+        >
+          <Shuffle className="w-4 h-4 mr-2" />
+          Shuffle Skills
+        </Button>
+        <div className="flex items-center gap-2">
+          <Volume2 className="w-4 h-4" />
+          <span className="text-sm">Theme Intensity</span>
+        </div>
+      </div>
+
       <div className="grid gap-8">
-        {['Frontend', 'Backend', 'Database', 'DevOps'].map((category) => (
+        {['Languages', 'Frameworks', 'Cloud', 'Databases', 'Tools'].map((category) => (
           <div key={category}>
             <h2 className="text-xl font-semibold mb-4">{category}</h2>
             <div className="space-y-4">
               {skills.filter(skill => skill.category === category).map((skill) => (
                 <div key={skill.name} className="spotify-card group p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="font-medium">{skill.name}</span>
-                    <span className="text-sm text-muted-foreground">{skill.proficiency}%</span>
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center">
+                        <div className="w-4 h-4 bg-primary/30 rounded"></div>
+                      </div>
+                      <span className="font-medium">{skill.name}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleLike(skill.name)}
+                        className="w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Heart className={`w-4 h-4 ${skill.isFavorited ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
+                      </Button>
+                      <span className="text-sm text-muted-foreground">{skill.proficiency}%</span>
+                    </div>
                   </div>
                   <Progress value={skill.proficiency} className="skill-progress h-2" />
+                  {skill.yearsExperience && (
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {skill.yearsExperience} years experience
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -533,7 +601,8 @@ const SpotifyPortfolio = () => {
             at top companies like Genesys and Bloomberg. Passionate about building scalable systems, AI applications, 
             and solving complex problems with modern technologies.
           </p>
-          <Button className="w-full">
+          <Button className="w-full" onClick={handleDownloadResume}>
+            <Download className="w-4 h-4 mr-2" />
             Download Resume
           </Button>
         </div>
@@ -567,18 +636,51 @@ const SpotifyPortfolio = () => {
         {/* Top Bar */}
         <div className="h-16 bg-card/50 backdrop-blur-sm border-b flex items-center justify-between px-6">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm" className="rounded-full">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
+            <Button variant="ghost" size="sm" className="rounded-full" onClick={handlePrevious}>
+              <SkipBack className="w-4 h-4" />
             </Button>
-            <Button variant="ghost" size="sm" className="rounded-full">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-              </svg>
+            <Button variant="ghost" size="sm" className="rounded-full" onClick={handleNext}>
+              <SkipForward className="w-4 h-4" />
             </Button>
           </div>
+          
+          {/* Search Bar */}
+          <div className="flex-1 max-w-md mx-8">
+            <Button
+              variant="outline"
+              onClick={() => setSearchOpen(true)}
+              className="w-full justify-start text-muted-foreground hover:text-foreground"
+            >
+              <Search className="w-4 h-4 mr-2" />
+              Search experience, skills, projects...
+            </Button>
+          </div>
+
           <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={handleDownloadResume}
+              className="w-8 h-8"
+            >
+              <Download className="w-4 h-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={handleShare}
+              className="w-8 h-8"
+            >
+              <Share className="w-4 h-4" />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => setQueueOpen(!queueOpen)}
+              className="w-8 h-8"
+            >
+              <Menu className="w-4 h-4" />
+            </Button>
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
               <span className="text-primary-foreground text-sm font-semibold">TP</span>
             </div>
@@ -586,51 +688,51 @@ const SpotifyPortfolio = () => {
         </div>
 
         {/* Content Area */}
-        <main className="flex-1 overflow-auto custom-scrollbar">
+        <main className={`flex-1 overflow-auto custom-scrollbar transition-all duration-300 ${queueOpen ? 'mr-80' : ''} ${currentTrack ? 'pb-24' : ''}`}>
           {renderContent()}
         </main>
       </div>
 
-      {/* Now Playing Bar */}
-      {currentTrack && (
-        <div className="fixed bottom-0 left-0 right-0 h-20 bg-card border-t flex items-center justify-between px-4">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <div className="w-12 h-12 bg-muted rounded flex items-center justify-center flex-shrink-0">
-              <div className="w-6 h-6 bg-primary/30 rounded"></div>
-            </div>
-            <div className="min-w-0">
-              <p className="font-medium truncate">{currentTrack.title}</p>
-              <p className="text-sm text-muted-foreground truncate">{currentTrack.artist}</p>
-            </div>
-            <Heart className="w-5 h-5 text-muted-foreground hover:text-primary cursor-pointer flex-shrink-0" />
-          </div>
+      {/* Enhanced Components */}
+      <SearchOverlay
+        isOpen={searchOpen}
+        onClose={() => setSearchOpen(false)}
+        data={{
+          experience: experienceTracks,
+          projects: projects,
+          skills: skills,
+          education: resumeData.education
+        }}
+        onResultClick={handleSearchResultClick}
+      />
 
-          <div className="flex items-center gap-2 flex-shrink-0">
-            <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M8.445 14.832A1 1 0 0010 14v-2.798l5.445 3.63A1 1 0 0017 14V6a1 1 0 00-1.555-.832L10 8.798V6a1 1 0 00-1.555-.832l-6 4a1 1 0 000 1.664l6 4z"/>
-              </svg>
-            </Button>
-            <Button
-              onClick={() => setIsPlaying(!isPlaying)}
-              className="play-button w-8 h-8 p-0"
-            >
-              {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
-            </Button>
-            <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M4.555 5.168A1 1 0 003 6v8a1 1 0 001.555.832L10 11.202V14a1 1 0 001.555.832l6-4a1 1 0 000-1.664l-6-4A1 1 0 0010 6v2.798L4.555 5.168z"/>
-              </svg>
-            </Button>
-          </div>
+      <QueueSidebar
+        isOpen={queueOpen}
+        currentTrack={currentTrack}
+        queue={queue}
+        recentlyPlayed={recentlyPlayed}
+        upcomingGoals={upcomingGoals}
+        onPlay={handleQueuePlay}
+        onLike={handleLike}
+        onRemoveFromQueue={(id) => setQueue(prev => prev.filter(item => item.id !== id))}
+      />
 
-          <div className="flex items-center gap-2 flex-1 justify-end">
-            <Button variant="ghost" size="sm" className="w-8 h-8 p-0">
-              <MoreHorizontal className="w-4 h-4" />
-            </Button>
-          </div>
-        </div>
-      )}
+      <NowPlayingBar
+        currentTrack={currentTrack}
+        isPlaying={isPlaying}
+        onPlayPause={() => setIsPlaying(!isPlaying)}
+        onNext={handleNext}
+        onPrevious={handlePrevious}
+        onShuffle={handleShuffle}
+        onRepeat={handleRepeat}
+        onLike={handleLike}
+        volume={volume}
+        onVolumeChange={handleVolumeChange}
+        progress={progress}
+        onProgressChange={setProgress}
+        isShuffled={isShuffled}
+        repeatMode={repeatMode}
+      />
 
       {/* Details Overlay */}
       {overlayData && (
