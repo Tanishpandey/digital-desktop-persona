@@ -70,25 +70,74 @@ export default {
 			},
 			keyframes: {
 				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+					from: { height: '0' },
+					to: { height: 'var(--radix-accordion-content-height)' }
 				},
 				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
+					from: { height: 'var(--radix-accordion-content-height)' },
+					to: { height: '0' }
+				},
+				'shimmer': {
+					'0%': { backgroundPosition: '200% 0' },
+					'100%': { backgroundPosition: '-200% 0' }
+				},
+				'typing': {
+					'0%': { width: '0' },
+					'100%': { width: '100%' }
+				},
+				'blink-caret': {
+					'from, to': { borderColor: 'transparent' },
+					'50%': { borderColor: 'hsl(var(--primary))' }
+				},
+				'float': {
+					'0%, 100%': { transform: 'translateY(0px) rotate(0deg)' },
+					'50%': { transform: 'translateY(-20px) rotate(180deg)' }
+				},
+				'bounceIn': {
+					'0%': { 
+						opacity: '0',
+						transform: 'scale(0.3) translateY(30px)' 
 					},
-					to: {
-						height: '0'
+					'50%': { 
+						opacity: '1',
+						transform: 'scale(1.05) translateY(-10px)' 
+					},
+					'70%': { transform: 'scale(0.95) translateY(0px)' },
+					'100%': { 
+						opacity: '1',
+						transform: 'scale(1) translateY(0px)' 
 					}
+				},
+				'slideInUp': {
+					'0%': { 
+						opacity: '0',
+						transform: 'translateY(20px)' 
+					},
+					'100%': { 
+						opacity: '1',
+						transform: 'translateY(0px)' 
+					}
+				},
+				'pulse-glow': {
+					'0%, 100%': { boxShadow: '0 0 20px hsl(var(--primary) / 0.3)' },
+					'50%': { boxShadow: '0 0 30px hsl(var(--primary) / 0.6)' }
+				},
+				'matrix-rain': {
+					'0%': { transform: 'translateY(-100vh)' },
+					'100%': { transform: 'translateY(100vh)' }
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'shimmer': 'shimmer 1.5s infinite',
+				'typing': 'typing 3s steps(40, end)',
+				'blink-caret': 'blink-caret 0.75s step-end infinite',
+				'float': 'float 20s ease-in-out infinite',
+				'bounce-in': 'bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+				'slide-in-up': 'slideInUp 0.6s ease-out forwards',
+				'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
+				'matrix-rain': 'matrix-rain 3s linear infinite'
 			}
 		}
 	},

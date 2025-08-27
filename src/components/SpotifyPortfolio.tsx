@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Play, Pause, Heart, MoreHorizontal, Clock, Calendar, MapPin, Mail, ExternalLink, X, Search, Shuffle, SkipForward, SkipBack, Repeat, Volume2, Download, Share, Menu } from 'lucide-react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { Play, Pause, Heart, MoreHorizontal, Clock, Calendar, MapPin, Mail, ExternalLink, X, Search, Shuffle, SkipForward, SkipBack, Repeat, Volume2, Download, Share, Menu, Library, Radio, Code, Zap, Coffee, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
@@ -7,8 +7,13 @@ import SpotifySidebar from './spotify/SpotifySidebar';
 import SearchOverlay from './spotify/SearchOverlay';
 import NowPlayingBar from './spotify/NowPlayingBar';
 import QueueSidebar from './spotify/QueueSidebar';
+import LibrarySection from './spotify/LibrarySection';
 import { resumeData } from '@/data/resumeData';
 import type { Track, Project, Skill, QueueItem } from '@/data/resumeData';
+
+// Lazy load heavy components for performance
+const ProjectDemo = lazy(() => import('./spotify/ProjectDemo'));
+const SkillPlayground = lazy(() => import('./spotify/SkillPlayground'));
 
 // Interfaces imported from resumeData
 
@@ -31,6 +36,14 @@ const SpotifyPortfolio = () => {
   const [repeatMode, setRepeatMode] = useState<'off' | 'all' | 'one'>('off');
   const [likedTracks, setLikedTracks] = useState<Set<string>>(new Set());
   const [themeIntensity, setThemeIntensity] = useState(75);
+  
+  // Creative interpretations state
+  const [currentDemo, setCurrentDemo] = useState<Project | null>(null);
+  const [currentSkillDemo, setCurrentSkillDemo] = useState<Skill | null>(null);
+  const [easterEggActive, setEasterEggActive] = useState('');
+  const [konamiSequence, setKonamiSequence] = useState<string[]>([]);
+  const [clickCount, setClickCount] = useState(0);
+  const [currentTheme, setCurrentTheme] = useState('spotify');
 
   // Data from centralized source
   const experienceTracks = resumeData.experience;
@@ -93,15 +106,35 @@ const SpotifyPortfolio = () => {
     return () => clearInterval(interval);
   }, [isPlaying, currentTrack]);
 
-  // Enhanced functionality handlers
-  const handlePlay = (track?: Track, item?: Project) => {
+  // Enhanced functionality handlers with creative interpretations
+  const handlePlay = (track?: Track, item?: Project, skill?: Skill) => {
     if (track) {
+      // Playing Experience = Timeline animation + achievements showcase
       setCurrentTrack(track);
       setIsPlaying(true);
       setOverlayData({ track, type: 'experience' });
       setCurrentTrackIndex(experienceTracks.findIndex(t => t.id === track.id));
+      
+      toast({
+        title: `🎵 Now Playing: ${track.title}`,
+        description: `Experience timeline at ${track.artist}`,
+      });
     } else if (item) {
-      setOverlayData({ track: item, type: 'project' });
+      // Playing Project = Live demo + code showcase
+      setCurrentDemo(item);
+      setIsPlaying(true);
+      toast({
+        title: `🚀 Demo Loading: ${item.name}`,
+        description: `Interactive project showcase`,
+      });
+    } else if (skill) {
+      // Playing Skill = Interactive code playground
+      setCurrentSkillDemo(skill);
+      setIsPlaying(true);
+      toast({
+        title: `💻 Code Playground: ${skill.name}`,
+        description: `Interactive skill demonstration`,
+      });
     } else {
       setIsPlaying(!isPlaying);
     }
@@ -133,9 +166,42 @@ const SpotifyPortfolio = () => {
 
   const handleShuffle = () => {
     setIsShuffled(!isShuffled);
+    
+    if (!isShuffled) {
+      // Creative shuffle implementations
+      const shuffleOptions = [
+        'skills', 'projects', 'funfacts', 'themes', 'colors'
+      ];
+      const randomShuffle = shuffleOptions[Math.floor(Math.random() * shuffleOptions.length)];
+      
+      switch (randomShuffle) {
+        case 'skills':
+          // Shuffle skill display order
+          break;
+        case 'projects':
+          // Shuffle project showcase sequence
+          break;
+        case 'funfacts':
+          // Show random coding facts
+          toast({
+            title: "💡 Fun Fact",
+            description: "The first computer bug was an actual bug - a moth found in a Harvard computer in 1947!",
+          });
+          break;
+        case 'themes':
+          // Cycle through color themes
+          setCurrentTheme(prev => prev === 'spotify' ? 'cyberpunk' : 'spotify');
+          break;
+        case 'colors':
+          // Randomize accent colors
+          document.documentElement.style.setProperty('--primary', `${Math.floor(Math.random() * 360)} 76% 36%`);
+          break;
+      }
+    }
+    
     toast({
-      title: isShuffled ? "Shuffle off" : "Shuffle on",
-      description: isShuffled ? "Playing in order" : "Playing randomly"
+      title: isShuffled ? "🔄 Shuffle off" : "🔀 Shuffle on",
+      description: isShuffled ? "Playing in order" : "Surprise mode activated!"
     });
   };
 
@@ -164,15 +230,42 @@ const SpotifyPortfolio = () => {
 
   const handleVolumeChange = (newVolume: number) => {
     setVolume(newVolume);
-    setThemeIntensity(newVolume); // Volume controls theme intensity
+    setThemeIntensity(newVolume); // Volume controls multiple aspects
+    
+    // Update CSS custom properties for theme intensity
+    document.documentElement.style.setProperty('--theme-opacity', (newVolume / 100).toString());
+    document.documentElement.style.setProperty('--glow-intensity', `${newVolume / 100 * 0.6}`);
+    document.documentElement.style.setProperty('--animation-speed', `${2 - (newVolume / 100)}s`);
+    
+    // Easter eggs at specific volume levels
+    if (newVolume === 100) {
+      setEasterEggActive('matrix');
+      setTimeout(() => setEasterEggActive(''), 3000);
+      toast({ title: "🔥 Maximum intensity!", description: "Matrix mode activated" });
+    } else if (newVolume === 0) {
+      setEasterEggActive('silent');
+      toast({ title: "🤫 Silent mode", description: "Stealth developer activated" });
+    }
   };
 
-  const handleDownloadResume = () => {
+  const handleDownloadResume = async () => {
     toast({
-      title: "Resume Downloaded",
-      description: "Your resume has been downloaded successfully"
+      title: "📄 Preparing Resume",
+      description: "Generating PDF with latest information..."
     });
-    // In a real app, this would trigger an actual download
+    
+    // Simulate PDF generation
+    setTimeout(() => {
+      const link = document.createElement('a');
+      link.href = '/resume-tanish-pandey.pdf'; // In real app, this would be generated
+      link.download = 'Tanish_Pandey_Resume.pdf';
+      link.click();
+      
+      toast({
+        title: "✅ Resume Downloaded",
+        description: "Resume saved to your downloads folder"
+      });
+    }, 1500);
   };
 
   const handleShare = () => {
@@ -201,8 +294,64 @@ const SpotifyPortfolio = () => {
     }
   };
 
+  // Easter egg handlers
+  const handleLogoClick = () => {
+    setClickCount(prev => {
+      const newCount = prev + 1;
+      if (newCount === 10) {
+        setEasterEggActive('devtools');
+        toast({ 
+          title: "🔧 Developer Mode Unlocked!", 
+          description: "Secret developer tools revealed" 
+        });
+        return 0;
+      }
+      return newCount;
+    });
+  };
+
+  // Konami code handler
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'KeyB', 'KeyA'];
+      const newSequence = [...konamiSequence, e.code];
+      
+      if (newSequence.length > konamiCode.length) {
+        newSequence.shift();
+      }
+      
+      setKonamiSequence(newSequence);
+      
+      if (newSequence.length === konamiCode.length && 
+          newSequence.every((key, i) => key === konamiCode[i])) {
+        setCurrentTheme('terminal');
+        setEasterEggActive('retro');
+        toast({ 
+          title: "🕹️ Konami Code Activated!", 
+          description: "Retro terminal theme unlocked" 
+        });
+        setKonamiSequence([]);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [konamiSequence]);
+
   const closeOverlay = () => {
     setOverlayData(null);
+    setCurrentDemo(null);
+    setCurrentSkillDemo(null);
+  };
+
+  const handleLibraryItemSelect = (item: any, type: string) => {
+    if (type === 'experience') {
+      handlePlay(item);
+    } else if (type === 'project') {
+      handlePlay(undefined, item);
+    } else if (type === 'playlist') {
+      setCurrentView(item.id);
+    }
   };
 
   const renderHome = () => (
@@ -262,28 +411,91 @@ const SpotifyPortfolio = () => {
         </div>
       </div>
 
-      {/* Recent Projects */}
+      {/* Made For You Playlists */}
       <div>
-        <h2 className="text-xl font-semibold mb-4">Recent Projects</h2>
+        <h2 className="text-xl font-semibold mb-4">Made for You</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {projects.slice(0, 4).map((project) => (
-            <div key={project.id} className="spotify-card group rounded-lg p-4 relative">
-              <div className="w-full aspect-square bg-muted rounded-lg mb-3 relative overflow-hidden">
-                <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                  <div className="w-12 h-12 bg-primary/30 rounded"></div>
+          {[
+            { name: 'Full Stack Mix', desc: 'End-to-end projects', gradient: 'from-purple-500 to-blue-500', count: projects.length },
+            { name: 'Frontend Favorites', desc: 'UI/UX excellence', gradient: 'from-green-500 to-teal-500', count: 3 },
+            { name: 'Backend Bangers', desc: 'Server-side mastery', gradient: 'from-orange-500 to-red-500', count: 2 },
+            { name: 'Career Highlights', desc: 'Top achievements', gradient: 'from-pink-500 to-purple-500', count: experienceTracks.length }
+          ].map((playlist, index) => (
+            <div key={playlist.name} className="spotify-card group rounded-lg p-4 relative stagger-item" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div className={`w-full aspect-square bg-gradient-to-br ${playlist.gradient} rounded-lg mb-3 relative overflow-hidden glow-effect`}>
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
+                    <div className="w-6 h-6 bg-white rounded"></div>
+                  </div>
                 </div>
                 <div className="play-overlay absolute bottom-2 right-2">
                   <Button 
-                    onClick={() => handlePlay(undefined, project)}
+                    onClick={() => setCurrentView('library')}
                     className="play-button w-12 h-12 rounded-full p-0 transition-all duration-200 hover:scale-110"
                   >
                     <Play className="w-5 h-5 ml-0.5" />
                   </Button>
                 </div>
               </div>
-              <h3 className="font-medium mb-1 truncate">{project.name}</h3>
-              <p className="text-sm text-muted-foreground truncate">{project.description}</p>
-              <p className="text-xs text-muted-foreground mt-1">{project.tech}</p>
+              <h3 className="font-medium mb-1 truncate">{playlist.name}</h3>
+              <p className="text-sm text-muted-foreground truncate">{playlist.desc}</p>
+              <p className="text-xs text-muted-foreground mt-1">{playlist.count} items</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Jump Back In */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Jump back in</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {recentlyPlayed.slice(0, 6).map((item, index) => (
+            <div 
+              key={item.id} 
+              className="spotify-card group flex items-center gap-4 p-4 rounded-lg stagger-item"
+              style={{ animationDelay: `${index * 0.1}s` }}
+              onClick={() => handlePlay(experienceTracks.find(t => t.id === item.id))}
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-primary/30 to-primary/10 rounded flex items-center justify-center">
+                {item.logo ? (
+                  <img src={item.logo} alt="" className="w-8 h-8 object-cover rounded" />
+                ) : (
+                  <div className="w-6 h-6 bg-primary/40 rounded"></div>
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium truncate">{item.title}</h3>
+                <p className="text-sm text-muted-foreground truncate">{item.subtitle}</p>
+              </div>
+              <div className="play-overlay">
+                <Button className="play-button w-8 h-8 rounded-full p-0">
+                  <Play className="w-3 h-3 ml-0.5" />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Discovery Radio */}
+      <div>
+        <h2 className="text-xl font-semibold mb-4">Discover</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {[
+            { name: 'Your Coding Style Radio', desc: 'Based on your tech stack', icon: Radio },
+            { name: 'Interview Prep Station', desc: 'Algorithms and system design', icon: Terminal },
+            { name: 'New Tech Discoveries', desc: 'Emerging frameworks to explore', icon: Zap }
+          ].map((radio, index) => (
+            <div key={radio.name} className={`spotify-card group p-6 rounded-lg text-center stagger-item`} style={{ animationDelay: `${index * 0.2}s` }}>
+              <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-primary/5 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <radio.icon className="w-8 h-8 text-primary" />
+              </div>
+              <h3 className="font-semibold mb-2">{radio.name}</h3>
+              <p className="text-sm text-muted-foreground mb-4">{radio.desc}</p>
+              <Button size="sm" className="play-button">
+                <Play className="w-4 h-4 mr-2" />
+                Listen
+              </Button>
             </div>
           ))}
         </div>
@@ -327,7 +539,11 @@ const SpotifyPortfolio = () => {
                 }
               </Button>
               <div className="w-10 h-10 bg-muted rounded flex items-center justify-center">
-                <div className="w-6 h-6 bg-primary/30 rounded"></div>
+                {track.logo ? (
+                  <img src={track.logo} alt={`${track.artist} logo`} className="w-6 h-6 object-cover rounded" />
+                ) : (
+                  <div className="w-6 h-6 bg-primary/30 rounded"></div>
+                )}
               </div>
               <div>
                 <p className="font-medium">{track.title}</p>
